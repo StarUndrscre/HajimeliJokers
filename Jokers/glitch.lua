@@ -47,5 +47,3 @@ local joker = {
 }
 
 SMODS.Joker(joker)
-print(joker.key)
-return joker
