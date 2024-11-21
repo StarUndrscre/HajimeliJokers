@@ -10,7 +10,6 @@ for k, file in pairs(jokerFiles) do
     print("loading joker: " .. file)
     local joker = NFS.load(mod.path.."jokers/"..file)()
     table.insert(modJokers, joker)
-    print(modJokers)
   end
 end
 
@@ -29,8 +28,11 @@ SMODS.Back{
       trigger = 'after',
       delay = 0.1,
       func = function()
-        local card = modJokers.glitch
+        local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_HJML_glitch')
+        G.jokers:emplace(create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_joker'))
         G.jokers:emplace(card)
+        G.jokers:emplace(create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_blue_joker'))
+        G.jokers:emplace(create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_popcorn'))
         return true
       end
     }))
