@@ -36,7 +36,7 @@ local joker = {
         G.E_MANAGER:add_event(Event({
           trigger = immediate,
           func = function()
-            other_joker:juice_up(0.3, 0.3)
+            other_joker:juice_up(0.6, 0.1)
             return true
           end
         }))

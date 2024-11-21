@@ -18,7 +18,6 @@ end
 SMODS.Back{
   name = "HJML Test Deck",
   key = "hjmltest",
-  config = {joker = "glitch"},
   loc_txt = {
     name = "HJML Test Deck",
     text = {
@@ -28,10 +27,10 @@ SMODS.Back{
   apply = function(self)
     G.E_MANAGER:add_event(Event({
       func = function()
-        G.jokers:emplace(new_card('j_joker'))
-        G.jokers:emplace(new_card('j_HJML_glitch'))
-        G.jokers:emplace(new_card('j_blue_joker'))
-        G.jokers:emplace(new_card('j_popcorn'))
+        G.jokers:emplace(new_card('j_HJML_club_setback'))
+        for _, card in ipairs(G.playing_cards) do
+					card:change_suit('Clubs')
+				end
         return true
       end
     }))
