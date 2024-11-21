@@ -25,7 +25,7 @@ local joker = {
   blueprint_compat = true,
   discovered = true,
   calculate = function(self, card, context)
-    if context.cardarea == G.hand then
+    if context.individual and context.cardarea == G.hand and not context.after and not context.before and not context.end_of_round then
       -- for _, heldcard in pairs(G.hand.cards) do
       --   print(heldcard)
       --   if heldcard:is_suit(card.ability.extra.suit) then
@@ -42,11 +42,22 @@ local joker = {
       --   end
       -- end
       if context.other_card:is_suit(card.ability.extra.suit) then
-        return {
-          extra = {message = localize { type = 'variable', key = 'a_chips', vars = { card.ability.extra.chip }}, colour = G.C.CHIPS},
-          chip = card.ability.extra.chip,
-          card = context.other_card
-        } 
+        -- return {
+        --   chips = card.ability.extra.chip,
+        --   card = context.other_card
+        -- }
+        G.E_MANAGER:add_event(Event({
+          trigger = immediate,
+          func = function()
+            card:juice_up(0.5, 0.5)
+            return true
+          end
+        }))
+        SMODS.eval_this(context.other_card, {
+          chip_mod = card.ability.extra.chip,
+          message = localize {type = 'variable', key = 'a_chips', vars = {card.ability.extra.chip}}
+        }) 
+        -- card:juice_up(0.5, 0.5)
       end
     end
   end
