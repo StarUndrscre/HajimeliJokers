@@ -1,6 +1,8 @@
 print("Hajimeli Jokers running!")
 local mod = SMODS.Mods["HajimeliJokers"]
 
+assert(load(NFS.read(mod.path .. "lib/hook.lua")))()
+
 local jokerFiles = NFS.getDirectoryItems(mod.path.."jokers")
 for k, file in pairs(jokerFiles) do
   local lowercasename = string.sub(file, 1, string.len(file) - 4):lower()
@@ -27,9 +29,8 @@ SMODS.Back{
   apply = function(self)
     G.E_MANAGER:add_event(Event({
       func = function()
-        G.jokers:emplace(new_card('j_blueprint'))
+        G.jokers:emplace(new_card('j_HJML_glitch'))
         G.jokers:emplace(new_card('j_HJML_club_setback'))
-        G.jokers:emplace(new_card('j_brainstorm'))
         for _, card in ipairs(G.playing_cards) do
 					card:change_suit('Clubs')
 				end

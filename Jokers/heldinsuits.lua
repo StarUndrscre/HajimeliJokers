@@ -1,27 +1,13 @@
--- SMODS.Atlas{
---   key = "club_setback",
---   px = 69,
---   py = 93,
---   path = "club_setback.png"
--- }
-
--- SMODS.Atlas{
---   key = "heart_setback",
---   px = 69,
---   py = 93,
---   path = "heart_setback.png"
--- }
-
--- SMODS.Atlas{
---   key = "diamond_setback",
---   px = 69,
---   py = 93,
---   path = "diamond_setback.png"
--- }
-
 -- https://stackoverflow.com/questions/2421695/first-character-uppercase-lua
 function firstToUpper(str)
   return (str:gsub("^%l", string.upper))
+end
+
+function printtable(table, indent)
+  print(tostring(table))
+  for index, value in pairs(table) do 
+    print('    ' .. tostring(index) .. ' : ' .. tostring(value))
+  end
 end
 
 local function held_in(suit)
@@ -52,31 +38,41 @@ local function held_in(suit)
     blueprint_compat = true,
     discovered = true,
     calculate = function(self, card, context)
-      if 
-        context.individual 
-        and context.cardarea == G.hand 
-        and not context.after 
-        and not context.before 
-        and not context.end_of_round 
-      then
-        if context.other_card:is_suit(card.ability.extra.suit) then
-          G.E_MANAGER:add_event(Event({
-            trigger = immediate,
-            func = function()
-              local card_to_juice = card
-              if context.blueprint_card then
-                card_to_juice = context.blueprint_card
+      if context.joker_main and context.glitch then
+        for _, other_card in pairs(G.hand.cards) do
+          if other_card:is_suit(self.ability.extra.suit) then
+            G.E_MANAGER:add_event(Event({
+              trigger = immediate,
+              func = function()
+                self:juice_up(0.1, 0.1)
+                card:juice_up()
+                return true
               end
-              
-              card_to_juice:juice_up()
-              return true
-            end
-          }))
+            }))
 
-          SMODS.eval_this(context.other_card, {
-            chip_mod = card.ability.extra.chip,
-            message = localize {type = 'variable', key = 'a_chips', vars = {card.ability.extra.chip}}
-          })
+            SMODS.eval_this(other_card, {
+              chip_mod = self.ability.extra.chip,
+              message = localize {type = 'variable', key = 'a_chips', vars = {self.ability.extra.chip}}
+            })
+          end
+        end
+      end
+      if context.joker_main and not context.glitch then
+        for _, other_card in pairs(G.hand.cards) do
+          if other_card:is_suit(card.ability.extra.suit) then
+            G.E_MANAGER:add_event(Event({
+              trigger = immediate,
+              func = function()
+                card:juice_up()
+                return true
+              end
+            }))
+
+            SMODS.eval_this(other_card, {
+              chip_mod = card.ability.extra.chip,
+              message = localize {type = 'variable', key = 'a_chips', vars = {card.ability.extra.chip}}
+            })
+          end
         end
       end
     end
