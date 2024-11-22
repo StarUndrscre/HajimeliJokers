@@ -27,7 +27,9 @@ SMODS.Back{
   apply = function(self)
     G.E_MANAGER:add_event(Event({
       func = function()
+        G.jokers:emplace(new_card('j_blueprint'))
         G.jokers:emplace(new_card('j_HJML_club_setback'))
+        G.jokers:emplace(new_card('j_brainstorm'))
         for _, card in ipairs(G.playing_cards) do
 					card:change_suit('Clubs')
 				end
