@@ -10,8 +10,8 @@ local joker = {
   loc_txt = {
     name = "Glitch",
     text = {
-      "Copies ability of a",
-      "random {C:attention}Joker{} in hand"
+      "Copies ability of",
+      "a random {C:attention}Joker{}"
     }
   },
   atlas = "glitch",
