@@ -1,4 +1,4 @@
-SMODSS.Atlas{
+SMODS.Atlas{
   key = "dulce",
   px = 71,
   py = 95,
@@ -22,4 +22,7 @@ local joker = {
     if context.joker_main then
       
     end
+  end
 }
+
+SMODS.Joker(joker)

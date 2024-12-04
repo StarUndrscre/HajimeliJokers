@@ -8,36 +8,7 @@ local desc_loc_txt = {
   }
 }
 
--- SMODS.current_mod.credits_tab = function()
-  -- return {
-		-- tab_definition_function = function()
-      -- return {
-        -- n = G.UIT.ROOT,
-        -- config = {
-          -- colour = G.C.CLEAR
-        -- },
-        -- nodes = {
-          -- n = G.UIT.C,
-          -- config = {
-            -- colour = G.C.WHITE
-          -- },
-          -- nodes = {
-            -- n = G.UIT.T,
-            -- config = {
-              -- text = "fbwuh",
-              -- scale = 0.75,
-              -- colour = G.C.WHITE
-            -- }
-          -- }
-        -- }
-      -- }
-		-- end
-  -- }
--- end
-
--- G.localization.descriptions.Mod["HajimeliJokers"] = desc_loc_txt
-
--- assert(load(NFS.read(mod.path .. "lib/hook.lua")))()
+NFS.load(mod.path.."credits.lua")()
 
 local jokerFiles = NFS.getDirectoryItems(mod.path.."jokers")
 for k, file in pairs(jokerFiles) do
@@ -65,11 +36,8 @@ SMODS.Back{
   apply = function(self)
     G.E_MANAGER:add_event(Event({
       func = function()
-        G.jokers:emplace(new_card('j_HJML_glitch'))
-        G.jokers:emplace(new_card('j_HJML_club_setback'))
-        for _, card in ipairs(G.playing_cards) do
-					card:change_suit('Clubs')
-				end
+        G.jokers:emplace(new_card('j_joker'))
+        G.jokers:emplace(new_card('j_HJML_eamuse'))
         return true
       end
     }))
