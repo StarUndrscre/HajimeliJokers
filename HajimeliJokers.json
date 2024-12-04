@@ -1,7 +1,7 @@
 {
 	"id": "HajimeliJokers",
 	"name": "Hajimeli Jokers",
-	"author": ["StarUndrscre", "Ryoko Amesapphi", "57_dayo", "SoftySapphie", "Uni", "mothbeanie", "DokiNabi", "Inksurgence", "Lumbud84"],
+	"author": ["StarUndrscre"],
 	"description": "Several themed Jokers referencing Hajimeli Team members (+ other rhythm game related stuff)",
 	"prefix": "HJML",
 	"main_file": "main.lua",

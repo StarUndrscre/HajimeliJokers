@@ -1,7 +1,43 @@
 print("Hajimeli Jokers running!")
 local mod = SMODS.Mods["HajimeliJokers"]
 
-assert(load(NFS.read(mod.path .. "lib/hook.lua")))()
+local desc_loc_txt = {
+  text = {
+    "Several themed Jokers referencing Hajimeli Team members (+ other miscellaneous stuff)",
+    "Artists: Ryoko Amesapphi, 57_dayo, SoftySapphie, Uni, mothbeanie, DokiNabi, Inksurgence, Lumbud84"
+  }
+}
+
+-- SMODS.current_mod.credits_tab = function()
+  -- return {
+		-- tab_definition_function = function()
+      -- return {
+        -- n = G.UIT.ROOT,
+        -- config = {
+          -- colour = G.C.CLEAR
+        -- },
+        -- nodes = {
+          -- n = G.UIT.C,
+          -- config = {
+            -- colour = G.C.WHITE
+          -- },
+          -- nodes = {
+            -- n = G.UIT.T,
+            -- config = {
+              -- text = "fbwuh",
+              -- scale = 0.75,
+              -- colour = G.C.WHITE
+            -- }
+          -- }
+        -- }
+      -- }
+		-- end
+  -- }
+-- end
+
+-- G.localization.descriptions.Mod["HajimeliJokers"] = desc_loc_txt
+
+-- assert(load(NFS.read(mod.path .. "lib/hook.lua")))()
 
 local jokerFiles = NFS.getDirectoryItems(mod.path.."jokers")
 for k, file in pairs(jokerFiles) do
