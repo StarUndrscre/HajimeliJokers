@@ -25,4 +25,4 @@ local joker = {
   end
 }
 
-SMODS.Joker(joker)
+-- SMODS.Joker(joker)

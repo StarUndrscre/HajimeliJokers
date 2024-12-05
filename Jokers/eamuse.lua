@@ -40,7 +40,8 @@ local joker = {
         end,
       }))
       card_eval_status_text(card, 'extra', card.ability.extra.mult, nil, nil, {
-        message = localize("k_upgrade_ex")
+        message = "Data saved!",
+        colour = G.C.ATTENTION
       })
     end
 

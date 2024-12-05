@@ -83,3 +83,4 @@ end
 SMODS.Joker(held_in("club"))
 SMODS.Joker(held_in("heart"))
 SMODS.Joker(held_in("diamond"))
+SMODS.Joker(held_in("spade"))
