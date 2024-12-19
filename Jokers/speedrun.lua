@@ -36,48 +36,22 @@ local joker = {
     text = {
       "Gives {C:money}$#1#{} if Blind is completed",
       "{C:important}under a certain time{}",
-      "{C:inactive,s:0.8}(#2#.#3#/#4#.#5#){}"
+      "{C:inactive,s:0.8}(#2#/#3#){}"
     }
   },
   config = { extra = { 
     money = 10,
-    player_stopwatch = {
-      s = 0,
-      ms = 0,
-    },
-    time_required = {
-      s = 0,
-      ms = 0,
-    }
+    player_stopwatch = 0,
+    time_required = 0,
+    player_in_blind = false,
+    player_being_scored = false,
+    time_elasped = 0
   } },
-  loc_vars = function(self, info_queue, card) -- yes i know this looks messy, but it works, okay?
-    local time_required_visual = {
-      s = "",
-      ms = ""
-    }
-    if card.ability.extra.time_required.s <= 9 and card.ability.extra.time_required.s >= 0 then
-      time_required_visual.s = "0" .. card.ability.extra.time_required.s
-    end
-    if card.ability.extra.time_required.ms <= 9 and card.ability.extra.time_required.ms >= 0 then
-      time_required_visual.ms = "0" .. card.ability.extra.time_required.ms
-    end
-
-    local player_stopwatch_visual = {
-      s = "",
-      ms = ""
-    }
-    if card.ability.extra.player_stopwatch.s <= 9 and card.ability.extra.player_stopwatch.s >= 0 then
-      player_stopwatch_visual.s = "0" .. card.ability.extra.player_stopwatch.s
-    end
-    if card.ability.extra.player_stopwatch.ms <= 9 and card.ability.extra.player_stopwatch.ms >= 0 then
-      player_stopwatch_visual.ms = "0" .. card.ability.extra.player_stopwatch.ms
-    end
+  loc_vars = function(self, info_queue, card)
     return { vars = { 
       card.ability.extra.money, 
-      player_stopwatch_visual.s,
-      player_stopwatch_visual.ms, 
-      time_required_visual.s,
-      time_required_visual.ms,
+      card.ability.extra.player_stopwatch,
+      card.ability.extra.time_required,
     } }
   end,
   atlas = "placeholder",
@@ -85,27 +59,7 @@ local joker = {
   cost = 4,
   blueprint_compat = true,
   discovered = true,
-  update = function(self, card, dt)
-    local plr_st = {}
-    local time_req = {}
-
-    plr_st.s = card.ability.extra.player_stopwatch.s
-    plr_st.ms = card.ability.extra.player_stopwatch.ms
-    time_req.s = card.ability.extra.time_required.s
-    time_req.ms = card.ability.extra.time_required.ms
-
-    plr_st.s = plr_st.s + math.floor(dt)
-    plr_st.ms = plr_st.ms + (round(dt, 2))%1
-  end,
   calculate = function(self, card, context)
-    local plr_st = {}
-    local time_req = {}
-
-    plr_st.s = card.ability.extra.player_stopwatch.s
-    plr_st.ms = card.ability.extra.player_stopwatch.ms
-    time_req.s = card.ability.extra.time_required.s
-    time_req.ms = card.ability.extra.time_required.ms
-
     -- local update_ref = Game.update
     -- function Game:update(dt)
     --   plr_st.s = plr_st.s + math.floor(dt)
@@ -114,24 +68,41 @@ local joker = {
     -- end
 
     if context.setting_blind and context.blind == G.GAME.round_resets.blind then
-      -- start timer
+      card.ability.extra.player_in_blind = true
+
+      card.ability.extra.time_required = 100
     end
 
     if context.scoring_hand and context.cardarea == G.jokers and context.before then
-      -- pause timer
+      card.ability.extra.player_being_scored = true
+      print("being scored")
     end
 
     if context.scoring_hand and context.cardarea == G.jokers and context.after then
-      -- resume timer
+      card.ability.extra.player_being_scored = false
+      print("not being scored")
     end
 
     if context.end_of_round then
       -- stop timer
       -- check if under time requirement and give money
-      -- reset timer
       -- if new ante, lower time requirement
+      card.ability.extra.player_in_blind = false
     end
-  end
+
+    if context.leaving_shop then
+      card.ability.extra.player_stopwatch = 0
+    end
+  end,
+  update = function(self, card, dt)
+    if (card.ability.extra.player_in_blind == false) or (card.ability.extra.player_being_scored) then return end
+    card.ability.extra.player_stopwatch = (card.ability.extra.player_stopwatch + round(dt, 2))
+  end,
+  calc_dollar_bonus = function(self, card)
+    if card.ability.extra.player_stopwatch <= card.ability.extra.time_required then
+      return card.ability.extra.money
+    end
+  end,
 }
 
 SMODS.Joker(joker)
