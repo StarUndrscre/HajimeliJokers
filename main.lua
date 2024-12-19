@@ -1,13 +1,6 @@
 print("Hajimeli Jokers running!")
 local mod = SMODS.Mods["HajimeliJokers"]
 
-local desc_loc_txt = {
-  text = {
-    "Several themed Jokers referencing Hajimeli Team members (+ other miscellaneous stuff)",
-    "Artists: Ryoko Amesapphi, 57_dayo, SoftySapphie, Uni, mothbeanie, DokiNabi, Inksurgence, Lumbud84"
-  }
-}
-
 NFS.load(mod.path.."credits.lua")()
 
 local jokerFiles = NFS.getDirectoryItems(mod.path.."jokers")
@@ -37,7 +30,7 @@ SMODS.Back{
     G.E_MANAGER:add_event(Event({
       func = function()
         G.jokers:emplace(new_card('j_joker'))
-        G.jokers:emplace(new_card('j_HJML_eamuse'))
+        G.jokers:emplace(new_card('j_HJML_speedrun'))
         return true
       end
     }))
