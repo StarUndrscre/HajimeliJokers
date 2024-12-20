@@ -42,7 +42,7 @@ local joker = {
   config = { extra = { 
     money = 10,
     player_stopwatch = 0,
-    time_required = 0,
+    time_required = 60,
     player_in_blind = false,
     player_being_scored = false,
     time_elasped = 0
@@ -66,31 +66,51 @@ local joker = {
     --   plr_st.ms = plr_st.ms + (round(dt, 2))%1
     --   update_ref(self, dt)
     -- end
+    local ante = G.GAME.round_resets.ante
+    card.ability.extra.time_required = 65 - (5*ante)
+    if card.ability.extra.time_required <= 15 then
+      card.ability.extra.time_required = 15
+    end
 
     if context.setting_blind and context.blind == G.GAME.round_resets.blind then
       card.ability.extra.player_in_blind = true
-
-      card.ability.extra.time_required = 100
+      G.E_MANAGER:add_event(Event({
+        func = function()
+          card.ability.extra.player_in_blind = true
+          return true
+        end,
+      }))
     end
 
     if context.scoring_hand and context.cardarea == G.jokers and context.before then
       card.ability.extra.player_being_scored = true
-      print("being scored")
+      G.E_MANAGER:add_event(Event({
+        func = function()
+          card.ability.extra.player_being_scored = true
+          return true
+        end,
+      }))
     end
 
     if context.scoring_hand and context.cardarea == G.jokers and context.after then
-      card.ability.extra.player_being_scored = false
-      print("not being scored")
+      G.E_MANAGER:add_event(Event({
+        func = function()
+          card.ability.extra.player_being_scored = false
+          return true
+        end,
+      }))
     end
 
     if context.end_of_round then
-      -- stop timer
-      -- check if under time requirement and give money
-      -- if new ante, lower time requirement
-      card.ability.extra.player_in_blind = false
+      G.E_MANAGER:add_event(Event({
+        func = function()
+          card.ability.extra.player_in_blind = false
+          return true
+        end,
+      }))
     end
 
-    if context.leaving_shop then
+    if context.ending_shop then
       card.ability.extra.player_stopwatch = 0
     end
   end,

@@ -31,6 +31,9 @@ SMODS.Back{
       func = function()
         G.jokers:emplace(new_card('j_joker'))
         G.jokers:emplace(new_card('j_HJML_speedrun'))
+        for _, card in ipairs(G.playing_cards) do
+          assert(SMODS.change_base(card, nil, '4'))
+        end
         return true
       end
     }))
