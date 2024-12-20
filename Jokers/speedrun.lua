@@ -35,8 +35,7 @@ local joker = {
     name = "Speedrun",
     text = {
       "Gives {C:money}$#1#{} if Blind is completed",
-      "{C:important}under a certain time{}",
-      "{C:inactive,s:0.8}(#2#/#3#){}"
+      "{C:important}under a certain time{}"
     }
   },
   config = { extra = { 
@@ -49,9 +48,7 @@ local joker = {
   } },
   loc_vars = function(self, info_queue, card)
     return { vars = { 
-      card.ability.extra.money, 
-      card.ability.extra.player_stopwatch,
-      card.ability.extra.time_required,
+      card.ability.extra.money
     } }
   end,
   atlas = "placeholder",
@@ -60,12 +57,6 @@ local joker = {
   blueprint_compat = true,
   discovered = true,
   calculate = function(self, card, context)
-    -- local update_ref = Game.update
-    -- function Game:update(dt)
-    --   plr_st.s = plr_st.s + math.floor(dt)
-    --   plr_st.ms = plr_st.ms + (round(dt, 2))%1
-    --   update_ref(self, dt)
-    -- end
     local ante = G.GAME.round_resets.ante
     card.ability.extra.time_required = 65 - (5*ante)
     if card.ability.extra.time_required <= 15 then
@@ -116,6 +107,7 @@ local joker = {
   end,
   update = function(self, card, dt)
     if (card.ability.extra.player_in_blind == false) or (card.ability.extra.player_being_scored) then return end
+    if G.GAME.blind.chips <= G.GAME.chips then return end -- if we're over the score then stop counting up
     card.ability.extra.player_stopwatch = (card.ability.extra.player_stopwatch + round(dt, 2))
   end,
   calc_dollar_bonus = function(self, card)
