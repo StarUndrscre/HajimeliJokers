@@ -23,16 +23,10 @@
 -- player_being_scored
 -- player_in_blind
 
--- https://stackoverflow.com/a/41534034
-function round(num, numDecimalPlaces)
-  local mult = 10^(numDecimalPlaces or 0)
-  return math.floor(num * mult + 0.5) / mult
-end
-
 -- this feels like a bad idea but we're trying it anyway since i have no options ~star
 if G.GAME then
-  G.GAME.hjml_speedrun_timer = 0
-  G.GAME.hjml_speedrun_timer_old = 0
+  G.GAME.hjml_speedrun_timer = G.GAME.hjml_speedrun_timer or 0
+  G.GAME.hjml_speedrun_timer_old = G.GAME.hjml_speedrun_timer_old or 0
 end
 
 function hjml_speedrun_update_timer(time)
@@ -49,8 +43,12 @@ function Game:update(dt)
         for i = 1, #G.jokers.cards do
           if G.jokers.cards[i].ability.name == "j_HJML_speedrun" then
             local card = G.jokers.cards[i]
+
+            -- make sure there's always 2 decimal places
+            local timer = "(" .. string.format("%2.2f", G.GAME.hjml_speedrun_timer) .. "/" .. tostring(card.ability.extra.time_required) .. ")"
+
             if card.ability_UIBox_table then
-              card.ability_UIBox_table.main[3][1].config.text = tostring(G.GAME.hjml_speedrun_timer)
+              card.ability_UIBox_table.main[3][1].config.text = timer
             end
             if card.children.h_popup then
               card.children.h_popup:recalculate()
@@ -68,8 +66,11 @@ local joker = {
     name = "Speedrun",
     text = {
       "Gives {C:money}$#1#{} if Blind is completed",
-      "{C:important}under a certain time{}",
-      "0/0"
+      "{C:attention}under a certain time{}",
+      "{C:inactive}(0.00/60){}",
+      "{s:0.15} {}",
+      "{C:red,s:0.75}Time requirement goes down{}",
+      "{C:red,s:0.75}by {C:attention,s:0.75}5{C:red,s:0.75} per {C:attention,s:0.75}Ante{C:red,s:0.75} and caps at {C:attention,s:0.75}15{}"
     }
   },
   config = { extra = { 
@@ -77,8 +78,7 @@ local joker = {
     player_stopwatch = 0,
     time_required = 60,
     player_in_blind = false,
-    player_being_scored = false,
-    time_elasped = 0
+    player_being_scored = false
   } },
   loc_vars = function(self, info_queue, card)
     return { vars = { 
@@ -136,54 +136,21 @@ local joker = {
     end
 
     if context.ending_shop then
+      print("player leaving shop")
       card.ability.extra.player_stopwatch = 0
+      hjml_speedrun_update_timer(0)
     end
   end,
   update = function(self, card, dt)
     if (card.ability.extra.player_in_blind == false) or (card.ability.extra.player_being_scored) then return end
     if G.GAME.blind.chips <= G.GAME.chips then return end -- if we're over the score then stop counting up
-    card.ability.extra.player_stopwatch = (card.ability.extra.player_stopwatch + round(dt, 2))
+    card.ability.extra.player_stopwatch = (card.ability.extra.player_stopwatch + dt)
     hjml_speedrun_update_timer(card.ability.extra.player_stopwatch)
   end,
   calc_dollar_bonus = function(self, card)
     if card.ability.extra.player_stopwatch <= card.ability.extra.time_required then
       return card.ability.extra.money
     end
-  end,
-  generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
-    local target = {
-      type = 'descriptions',
-      key = self.key,
-      set = self.set,
-      nodes = desc_nodes,
-      vars = specific_vars or {}
-    }
-    local res = {}
-    if self.loc_vars and type(self.loc_vars) == 'function' then
-      res = self:loc_vars(info_queue, card) or {}
-      target.vars = res.vars or target.vars
-      target.key = res.key or target.key
-      target.set = res.set or target.set
-      target.scale = res.scale
-      target.text_colour = res.text_colour
-    end
-    if desc_nodes == full_UI_table.main and not full_UI_table.name then
-      full_UI_table.name = self.set == 'Enhanced' and 'temp_value' or localize { type = 'name', set = target.set, key = target.key, nodes = full_UI_table.name }
-    elseif desc_nodes ~= full_UI_table.main and not desc_nodes.name and self.set ~= 'Enhanced' then
-      desc_nodes.name = localize{type = 'name_text', key = target.key, set = target.set } 
-    end
-    if specific_vars and specific_vars.debuffed and not res.replace_debuff then
-      target = { type = 'other', key = 'debuffed_' ..
-      (specific_vars.playing_card and 'playing_card' or 'default'), nodes = desc_nodes }
-    end
-    if res.main_start then
-      desc_nodes[#desc_nodes + 1] = res.main_start
-    end
-    localize(target)
-    if res.main_end then
-      desc_nodes[#desc_nodes + 1] = res.main_end
-    end
-    desc_nodes.background_colour = res.background_colour
   end
 }
 
