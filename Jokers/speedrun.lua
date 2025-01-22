@@ -24,19 +24,53 @@
 -- player_in_blind
 
 -- this feels like a bad idea but we're trying it anyway since i have no options ~star
-if G.GAME then
-  G.GAME.hjml_speedrun_timer = G.GAME.hjml_speedrun_timer or 0
-  G.GAME.hjml_speedrun_timer_old = G.GAME.hjml_speedrun_timer_old or 0
+function hjml_speedrun_update_timer(dt, init)
+  if G.GAME.hjml_speedrun_timer then
+    if not init then
+      if G.GAME_hjml_speedrun_timer then
+        G.GAME.hjml_speedrun_timer_old = G.GAME_hjml_speedrun_timer
+      end
+
+      G.GAME.hjml_speedrun_timer = G.GAME.hjml_speedrun_timer + dt
+    elseif init then
+      G.GAME.hjml_speedrun_timer = 0
+    end
+
+    G.GAME.hjml_speedrun_timer = G.GAME.hjml_speedrun_timer + dt
+
+    -- I don't know why, I don't want to know why, I shouldn't
+    -- have to wonder why, but for whatever reason this stupid
+    -- timer isn't loading correctly unless we do this terribleness
+    -- ( https://youtube.com/clip/UgkxJCA1dWmmpkehBimt4YG6PHMjq_EhhgcL )
+    G.hjml_speedrun_exploit_prevention = G.GAME.hjml_speedrun_timer
+  else
+    -- https://cdn.discordapp.com/stickers/1054943787178274927.png
+    G.GAME.hjml_speedrun_timer = G.GAME.hjml_speedrun_timer or 0
+  end
 end
 
-function hjml_speedrun_update_timer(time)
-  G.GAME.hjml_speedrun_timer_old = G.GAME_hjml_speedrun_timer
-  G.GAME.hjml_speedrun_timer = time
+local _start = Game.start_run
+function Game:start_run(args)
+  _start(self, args)
+  if G.hjml_speedrun_exploit_prevention then
+    self.GAME.hjml_speedrun_timer = G.hjml_speedrun_exploit_prevention
+  end
 end
 
 local upd = Game.update
 function Game:update(dt)
   upd(self, dt)
+
+  if (G.STATE == G.STATES.SELECTING_HAND) and (not G.SETTINGS.paused) then
+    hjml_speedrun_update_timer(dt)
+  end
+
+  if G.STATE == G.STATES.BLIND_SELECT then
+    if G.GAME_hjml_speedrun_timer ~= 0 then
+      hjml_speedrun_update_timer(0, true)
+    end
+  end
+
   if G.GAME.hjml_speedrun_timer then
     if G.GAME.hjml_speedrun_timer ~= G.GAME.hjml_speedrun_timer_old then
       if G.jokers then
@@ -75,10 +109,7 @@ local joker = {
   },
   config = { extra = { 
     money = 10,
-    player_stopwatch = 0,
-    time_required = 60,
-    player_in_blind = false,
-    player_being_scored = false
+    time_required = 60
   } },
   loc_vars = function(self, info_queue, card)
     return { vars = { 
@@ -96,59 +127,9 @@ local joker = {
     if card.ability.extra.time_required <= 15 then
       card.ability.extra.time_required = 15
     end
-
-    if context.setting_blind and context.blind == G.GAME.round_resets.blind then
-      card.ability.extra.player_in_blind = true
-      G.E_MANAGER:add_event(Event({
-        func = function()
-          card.ability.extra.player_in_blind = true
-          return true
-        end,
-      }))
-    end
-
-    if context.scoring_hand and context.cardarea == G.jokers and context.before then
-      card.ability.extra.player_being_scored = true
-      G.E_MANAGER:add_event(Event({
-        func = function()
-          card.ability.extra.player_being_scored = true
-          return true
-        end,
-      }))
-    end
-
-    if context.scoring_hand and context.cardarea == G.jokers and context.after then
-      G.E_MANAGER:add_event(Event({
-        func = function()
-          card.ability.extra.player_being_scored = false
-          return true
-        end,
-      }))
-    end
-
-    if context.end_of_round then
-      G.E_MANAGER:add_event(Event({
-        func = function()
-          card.ability.extra.player_in_blind = false
-          return true
-        end,
-      }))
-    end
-
-    if context.ending_shop then
-      print("player leaving shop")
-      card.ability.extra.player_stopwatch = 0
-      hjml_speedrun_update_timer(0)
-    end
-  end,
-  update = function(self, card, dt)
-    if (card.ability.extra.player_in_blind == false) or (card.ability.extra.player_being_scored) then return end
-    if G.GAME.blind.chips <= G.GAME.chips then return end -- if we're over the score then stop counting up
-    card.ability.extra.player_stopwatch = (card.ability.extra.player_stopwatch + dt)
-    hjml_speedrun_update_timer(card.ability.extra.player_stopwatch)
   end,
   calc_dollar_bonus = function(self, card)
-    if card.ability.extra.player_stopwatch <= card.ability.extra.time_required then
+    if G.GAME.hjml_speedrun_timer <= card.ability.extra.time_required then
       return card.ability.extra.money
     end
   end
