@@ -30,7 +30,9 @@ SMODS.Back{
     G.E_MANAGER:add_event(Event({
       func = function()
         G.jokers:emplace(new_card('j_joker'))
-        G.jokers:emplace(new_card('j_HJML_speedrun'))
+        G.jokers:emplace(new_card('j_joker'))
+        G.jokers:emplace(new_card('j_HJML_glitch'))
+        G.jokers:emplace(new_card('j_HJML_aime'))
         for _, card in ipairs(G.playing_cards) do
           assert(SMODS.change_base(card, nil, '4'))
         end
